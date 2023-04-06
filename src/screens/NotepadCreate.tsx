@@ -35,7 +35,10 @@ export function NotepadCreate({
   const [form, setForm] = useState(initialFormState);
 
   useEffect(() => {
-    setForm(initialFormState);
+    const unsubscribe = navigation.addListener("focus", () => {
+      setForm(initialFormState);
+    });
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
