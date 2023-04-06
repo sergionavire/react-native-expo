@@ -1,14 +1,21 @@
 import { useState, useEffect } from "react";
-import { Text, View } from "react-native";
+import {
+  Text,
+  View,
+  Button,
+  Alert,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import { apiNotePad } from "../../api/apiNotePad";
 import { H1 } from "../components/Heading";
 import styled from "styled-components/native";
-
-type NotePadListType = {
-  id: number;
-  title: string;
-  subtitle: string;
-};
+import type { ParamListBase } from "@react-navigation/native";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import screens from "../screens.json";
+import { NotepadType, initialEmptyNotepad } from "../types";
 
 async function getNotePadList() {
   const res = await apiNotePad.get("/notepads");
@@ -16,12 +23,16 @@ async function getNotePadList() {
   return data;
 }
 
-export function NotepadList() {
-  const valorInicial: NotePadListType[] = [];
+export function NotepadList({
+  navigation,
+  route,
+}: NativeStackScreenProps<ParamListBase>) {
+  const valorInicial: NotepadType[] = [];
   const [notepadList, setNotepadList] = useState(valorInicial);
   useEffect(() => {
-    getNotePadList().then((notepads) => {
-      setNotepadList(notepads);
+    const unsubscribe = navigation.addListener("focus", async () => {
+      const { data } = await apiNotePad.get("/notepads");
+      setNotepadList(data);
     });
   }, []);
 
@@ -29,27 +40,46 @@ export function NotepadList() {
     <View>
       <H1>Notepad List</H1>
       <View>
-        {notepadList.map((notepad) => {
-          return (
-            <Notepad key={notepad.id}>
-              <Title>
-                {notepad.id}: {notepad.title}
-              </Title>
-              <Subtitle>{notepad.subtitle}</Subtitle>
-            </Notepad>
-          );
-        })}
+        <FlatList
+          data={notepadList}
+          keyExtractor={({ id }) => id.toString()}
+          renderItem={({ item }) => {
+            return (
+              <Notepad
+                key={item.id}
+                onPress={() => {
+                  navigation.navigate(screens.notepadView, {
+                    id: item.id,
+                  });
+                }}
+              >
+                <NotepadText>
+                  <Title>
+                    {item.id}: {item.title}
+                  </Title>
+                  <Subtitle>{item.subtitle}</Subtitle>
+                  <Text>
+                    La: {item.latitude} / Lo: {item.longitude}
+                  </Text>
+                </NotepadText>
+              </Notepad>
+            );
+          }}
+        />
       </View>
     </View>
   );
 }
 
-const Notepad = styled.View`
+const Notepad = styled.TouchableOpacity`
   display: flex;
-  flex-direction: column;
-  gap: 5;
+  flex-direction: row;
+  gap: 5px;
   padding: 15px 5px;
   border: 1px solid grey;
+`;
+const NotepadText = styled.View`
+  flex: 1;
 `;
 const Title = styled.Text`
   font-size: 18px;

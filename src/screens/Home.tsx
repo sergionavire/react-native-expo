@@ -1,48 +1,36 @@
-import { useState } from "react";
-import { StyleSheet, Text, View, Button, Alert } from "react-native";
-import { ButtonTag } from "../components/ButtonTag";
-import { TextField } from "../components/TextField";
-import { Paragraph } from "../components/Paragraph";
-import { H1, H2, H3, H4, H5, H6 } from "../components/Heading";
-import { ErrorText } from "../components/ErrorText";
+import styled from "styled-components";
+import { View, StyleSheet } from "react-native";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import type { ParamListBase } from "@react-navigation/native";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-export function Home() {
-  const [textInput, setTextInput] = useState("");
+const Container = styled.View`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex: 1;
+`;
+
+export function Home({ navigation }: NativeStackScreenProps<ParamListBase>) {
   return (
-    <View>
-      <Text>Hello world!</Text>
-      <ButtonTag
-        title="Clique aqui"
-        onPress={() => {
-          Alert.alert("Obrigado");
+    <Container>
+      <MapView
+        style={styles.map}
+        provider={PROVIDER_GOOGLE}
+        initialRegion={{
+          latitude: -22.90145,
+          longitude: -43.17892,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
         }}
       />
-      <TextField
-        placeholder="Digite aqui"
-        value={textInput}
-        onChange={(text) => {
-          setTextInput(text);
-        }}
-      />
-      <Paragraph>
-        Esse é parágrafo para mostar que esse componente pode ser utilizado
-        quantas vezes quiser.
-      </Paragraph>
-      <Paragraph>
-        E esse é o segundo parágrafo para mostar que esse componente pode ser
-        utilizado quantas vezes quiser.
-      </Paragraph>
-      <Paragraph>
-        E esse é o segundo parágrafo para mostar que esse componente pode ser
-        utilizado quantas vezes quiser.
-      </Paragraph>
-      <H1>Esse é o H1</H1>
-      <H2>Esse é o H2</H2>
-      <H3>Esse é o H3</H3>
-      <H4>Esse é o H4</H4>
-      <H5>Esse é o H5</H5>
-      <H6>Esse é o H6</H6>
-      <ErrorText message="Erro teste" error />
-    </View>
+    </Container>
   );
 }
+
+const styles = StyleSheet.create({
+  map: {
+    width: "100%",
+    height: "100%",
+  },
+});

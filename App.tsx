@@ -1,75 +1,71 @@
 import "react-native-gesture-handler";
-import { StatusBar } from "expo-status-bar";
-import { ScrollView, StyleSheet, View, Text } from "react-native";
-import { AppBar } from "./src/components/AppBar";
-import { Home } from "./src/screens/Home";
-import { ReplitExercise } from "./src/screens/ReplitExercise";
+import { AppStateContext, initialAppStateContext } from "./src/AppStateContext";
+import { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { Home } from "./src/screens/Home";
+import { Loader } from "./src/components/Loader";
+import { apiNotePad } from "./api/apiNotePad";
 import { NotepadCreate } from "./src/screens/NotepadCreate";
+import { NotepadList } from "./src/screens/NotepadList";
 import { NotepadEdit } from "./src/screens/NotepadEdit";
 import { NotepadView } from "./src/screens/NotepadView";
-import { NotepadList } from "./src/screens/NotepadList";
+import screens from "./src/screens.json";
 
 const Drawer = createDrawerNavigator();
 
 export default function App() {
+  const [appState, setAppState] = useState(initialAppStateContext);
+
+  useEffect(() => {
+    const interceptorRequest = apiNotePad.interceptors.request.use((config) => {
+      setAppState({
+        loading: true,
+      });
+      return config;
+    });
+
+    const interceptorResponse = apiNotePad.interceptors.response.use(
+      (config) => {
+        setAppState({
+          loading: false,
+        });
+        return config;
+      }
+    );
+
+    return () => {
+      apiNotePad.interceptors.request.eject(interceptorRequest);
+      apiNotePad.interceptors.response.eject(interceptorResponse);
+    };
+  }, []);
+
   return (
-    <NavigationContainer>
-      <Drawer.Navigator
-        initialRouteName="Home"
-        screenOptions={{ headerTitle: "" }}
-      >
-        <Drawer.Screen name="Home" component={Home} />
-        <Drawer.Screen name="Listar" component={NotepadList} />
-        <Drawer.Screen name="Criar" component={NotepadCreate} />
-      </Drawer.Navigator>
-    </NavigationContainer>
+    <AppStateContext.Provider value={appState}>
+      <Loader loading={appState.loading} />
+      <NavigationContainer>
+        <Drawer.Navigator
+          initialRouteName={screens.notepadList}
+          screenOptions={{ headerTitle: "" }}
+        >
+          <Drawer.Screen name={screens.home} component={Home} />
+          <Drawer.Screen name={screens.notepadList} component={NotepadList} />
+          <Drawer.Screen
+            name={screens.notepadCreate}
+            component={NotepadCreate}
+          />
+          <Drawer.Screen
+            name={screens.notepadView}
+            component={NotepadView}
+            options={{ drawerItemStyle: { display: "none" } }}
+          />
+          <Drawer.Screen
+            name={screens.notepadEdit}
+            component={NotepadEdit}
+            options={{ drawerItemStyle: { display: "none" } }}
+          />
+        </Drawer.Navigator>
+      </NavigationContainer>
+    </AppStateContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 25,
-  },
-  scrollView: {
-    flexGrow: 1,
-  },
-});
-
-// import "react-native-gesture-handler";
-// import { StatusBar } from "expo-status-bar";
-// import { ScrollView, StyleSheet, View } from "react-native";
-// import { AppBar } from "./src/components/AppBar";
-// import { Home } from "./src/screens/Home";
-// import { ReplitExercise } from "./src/screens/ReplitExercise";
-
-// export default function App() {
-//   return (
-//     <View style={styles.container}>
-//       <AppBar />
-//       <ScrollView style={styles.scrollView}>
-//         {/* <Home /> */}
-//         <ReplitExercise />
-//       </ScrollView>
-//       <StatusBar style="auto" />
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     alignItems: "center",
-//     justifyContent: "center",
-//     marginTop: 25,
-//   },
-//   scrollView: {
-//     flexGrow: 1,
-//   },
-// });
