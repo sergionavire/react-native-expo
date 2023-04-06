@@ -14,6 +14,6 @@ export const initialEmptyNotepad: NotepadType = {
   title: "",
   subtitle: "",
   content: "",
-  latitude: null,
-  longitude: null,
+  latitude: 0,
+  longitude: 0,
 };

@@ -1,4 +1,3 @@
-import { View } from "react-native";
 import styled from "styled-components";
 
 export const SaveButton = styled.TouchableOpacity`
@@ -52,7 +51,7 @@ export const ButtonsView = styled.View`
   gap: 5px;
 `;
 
-export const FormContainer = styled.View`
+export const FormContainer = styled.ScrollView`
   display: flex;
   gap: 5px;
   margin-left: 10px;

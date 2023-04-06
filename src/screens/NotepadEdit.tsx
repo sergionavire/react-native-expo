@@ -1,11 +1,8 @@
-import { Text, View, TextInput } from "react-native";
 import { useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { NotepadType, initialEmptyNotepad } from "../types";
-import { apiNotePad } from "../../api/apiNotePad";
+import { apiNotePad } from "../api/apiNotePad";
 import { TextField } from "../components/TextField";
-import { TextData } from "../components/TextData";
-import styled from "styled-components";
 import screens from "../screens.json";
 import Toast from "react-native-root-toast";
 import {
@@ -17,30 +14,27 @@ import {
   SaveButton,
   FormContainer,
   ButtonsView,
-} from "../components/TestNotepadComponents";
-
-const initialFormState = {
-  title: "",
-  subtitle: "",
-  content: "",
-};
+} from "../components/NotepadComponents";
 
 export function NotepadEdit({
   navigation,
   route,
 }: NativeStackScreenProps<any>) {
-  const [form, setForm] = useState(initialFormState);
+  const [form, setForm] = useState(initialEmptyNotepad);
   const notepadId = route.params.id;
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
       const {
-        data: { title, subtitle, content },
+        data: { title, subtitle, content, latitude, longitude },
       } = await apiNotePad.get<NotepadType>(`/notepads/${notepadId}`);
       setForm({
+        ...form,
         title,
         subtitle,
         content,
+        latitude,
+        longitude,
       });
     });
     return unsubscribe;
@@ -52,6 +46,18 @@ export function NotepadEdit({
         <H1>Notepad: {notepadId}</H1>
         <SaveButton
           onPress={async () => {
+            if (form.title.length < 8) {
+              Toast.show("O título deve ter pelo menos 8 caracteres");
+              return null;
+            }
+            if (form.subtitle.length < 16) {
+              Toast.show("O subtítulo deve ter pelo menos 16 caracteres");
+              return null;
+            }
+            if (form.content.length < 32) {
+              Toast.show("O conteúdo deve ter pelo menos 32 caracteres");
+              return null;
+            }
             const { data } = await apiNotePad.put(
               `/notepads/${notepadId}`,
               form
@@ -63,7 +69,6 @@ export function NotepadEdit({
                 id: notepadId,
               });
             } else {
-              console.log(data.erros.message);
               Toast.show(data.erros[0].message);
             }
           }}
@@ -87,6 +92,20 @@ export function NotepadEdit({
         onChange={(content) => setForm({ ...form, content })}
         multilines={true}
         numberOfLines={4}
+      />
+      <TextField
+        placeholder="Latitude"
+        value={form.latitude.toString()}
+        onChange={(latitude) =>
+          setForm({ ...form, latitude: Number(latitude) })
+        }
+      />
+      <TextField
+        placeholder="Longitude"
+        value={form.longitude.toString()}
+        onChange={(longitude) =>
+          setForm({ ...form, longitude: Number(longitude) })
+        }
       />
       <ButtonsView>
         <DeleteButton

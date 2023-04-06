@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Text, View } from "react-native";
 import { NotepadType, initialEmptyNotepad } from "../types";
-import { apiNotePad } from "../../api/apiNotePad";
+import { apiNotePad } from "../api/apiNotePad";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import styled from "styled-components";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -16,7 +16,7 @@ import {
   Header,
   ButtonEdit,
   FormContainer,
-} from "../components/TestNotepadComponents";
+} from "../components/NotepadComponents";
 
 export function NotepadView({
   navigation,
@@ -47,6 +47,18 @@ export function NotepadView({
           }}
         >
           <EditText>Editar</EditText>
+        </ButtonEdit>
+        <ButtonEdit
+          onPress={() => {
+            navigation.navigate(screens.home, {
+              coords: {
+                latitude: notepad.latitude,
+                longitude: notepad.longitude,
+              },
+            });
+          }}
+        >
+          <EditText>Ver mapa</EditText>
         </ButtonEdit>
       </Header>
       <TextData>{notepad.created_at}</TextData>

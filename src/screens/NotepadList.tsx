@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import { apiNotePad } from "../../api/apiNotePad";
+import { apiNotePad } from "../api/apiNotePad";
 import { H1 } from "../components/Heading";
 import styled from "styled-components/native";
 import type { ParamListBase } from "@react-navigation/native";
